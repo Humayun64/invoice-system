@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
@@ -29,14 +30,17 @@ class AuthController extends Controller
                 'user_name' => $user->full_name ?: $user->username,
                 'user_role' => $user->role,
             ]);
+            ActivityLog::record('login', 'auth', $user->id, $user->username, 'Logged in');
             return redirect()->route('dashboard');
         }
 
+        ActivityLog::record('login_failed', 'auth', null, $request->username, 'Failed login attempt');
         return back()->withErrors(['login' => 'Invalid username or password.'])->withInput();
     }
 
     public function logout()
     {
+        ActivityLog::record('logout', 'auth', session('user_id'), session('user_name'), 'Logged out');
         session()->flush();
         return redirect()->route('login');
     }

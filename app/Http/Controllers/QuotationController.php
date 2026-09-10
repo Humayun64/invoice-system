@@ -9,6 +9,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\ActivityLog;
 
 class QuotationController extends Controller
 {
@@ -69,6 +70,7 @@ class QuotationController extends Controller
         ]);
 
         $this->saveItems($quotation->id, $request);
+        ActivityLog::record('created', 'quotation', $quotation->id, $quotation->quotation_no, 'Created quotation for '.$quotation->client->name, null, $quotation->load('items')->toArray());
 
         return redirect()->route('quotations.index')->with('success', 'Quotation saved successfully!');
     }
@@ -84,6 +86,7 @@ class QuotationController extends Controller
     public function update(Request $request, $id)
     {
         $quotation = Quotation::findOrFail($id);
+        $before    = $quotation->load('items')->toArray();
 
         $request->validate([
             'quotation_no'  => 'required|unique:quotations,quotation_no,'.$id,
@@ -113,13 +116,19 @@ class QuotationController extends Controller
 
         $quotation->items()->delete();
         $this->saveItems($quotation->id, $request);
+        ActivityLog::record('updated', 'quotation', $quotation->id, $quotation->quotation_no, 'Updated quotation', $before, $quotation->fresh()->load('items')->toArray());
 
         return redirect()->route('quotations.index')->with('success', 'Quotation updated successfully!');
     }
 
     public function destroy($id)
     {
-        Quotation::findOrFail($id)->delete();
+        $qt     = Quotation::with(['items','client'])->findOrFail($id);
+        $snap   = $qt->toArray();
+        $ref    = $qt->quotation_no;
+        $client = $qt->client->name ?? '';
+        $qt->delete();
+        ActivityLog::record('deleted', 'quotation', $id, $ref, 'Deleted quotation '.$ref.' ('.$client.')', $snap, null);
         return redirect()->route('quotations.index')->with('success', 'Quotation deleted.');
     }
 
@@ -175,6 +184,7 @@ class QuotationController extends Controller
         }
 
         $quotation->update(['status' => 'accepted']);
+        ActivityLog::record('converted', 'quotation', $quotation->id, $quotation->quotation_no, 'Converted quotation '.$quotation->quotation_no.' to invoice '.$invNo, null, ['invoice_id'=>$invoice->id,'invoice_no'=>$invNo]);
 
         return redirect()->route('invoices.edit', $invoice->id)
             ->with('success', 'Quotation converted to Invoice '.$invNo.'!');

@@ -181,6 +181,9 @@ input:checked + .slider:before { transform:translateX(20px); }
     <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
       <span class="icon">⚙️</span> Settings
     </a>
+    <a href="{{ route('activity.index') }}" class="nav-link {{ request()->routeIs('activity.*') ? 'active' : '' }}">
+      <span class="icon">📜</span> Activity Log
+    </a>
   </nav>
   <div class="sidebar-footer">
     <a href="{{ route('logout') }}">

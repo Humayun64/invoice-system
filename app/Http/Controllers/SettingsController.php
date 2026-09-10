@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Company;
 use App\Models\Badge;
 use App\Models\User;
+use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Hash;
 
 class SettingsController extends Controller
@@ -25,7 +26,9 @@ class SettingsController extends Controller
             'conclusion_text','signatory_name','signatory_title','important_clauses'
         ]);
         $company = Company::first();
-        $company ? $company->update($data) : Company::create($data);
+        $before  = $company?->toArray();
+        $company ? $company->update($data) : $company = Company::create($data);
+        ActivityLog::record('updated', 'settings', $company->id, 'company', 'Updated company settings', $before, $company->fresh()->toArray());
         return redirect()->route('settings.index')->with('success', 'Company settings updated!');
     }
 
@@ -37,6 +40,7 @@ class SettingsController extends Controller
             return back()->withErrors(['current_password' => 'Current password is incorrect.']);
         }
         $user->update(['password' => Hash::make($request->new_password)]);
+        ActivityLog::record('password_changed', 'auth', $user->id, $user->username, 'Changed password');
         return redirect()->route('settings.index')->with('success', 'Password changed successfully!');
     }
 
@@ -91,6 +95,7 @@ class SettingsController extends Controller
         $path  = public_path($badge->image_path);
         if (file_exists($path)) unlink($path);
         $badge->delete();
+        ActivityLog::record('deleted', 'settings', $id, 'badge', 'Removed a trust badge');
         return redirect()->route('settings.index')->with('success', 'Badge removed.');
     }
 }

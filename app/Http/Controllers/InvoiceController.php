@@ -7,6 +7,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\ActivityLog;
 
 class InvoiceController extends Controller
 {
@@ -63,6 +64,7 @@ class InvoiceController extends Controller
         ]);
 
         $this->saveItems($invoice->id, $request, 'invoice');
+        ActivityLog::record('created', 'invoice', $invoice->id, $invoice->invoice_no, 'Created invoice for '.$invoice->client->name, null, $invoice->load('items')->toArray());
 
         return redirect()->route('invoices.index')->with('success', 'Invoice saved successfully!');
     }
@@ -77,6 +79,7 @@ class InvoiceController extends Controller
     public function update(Request $request, $id)
     {
         $invoice = Invoice::findOrFail($id);
+        $before  = $invoice->load('items')->toArray();
 
         $request->validate([
             'invoice_no'    => 'required|unique:invoices,invoice_no,'.$id,
@@ -103,13 +106,19 @@ class InvoiceController extends Controller
 
         $invoice->items()->delete();
         $this->saveItems($invoice->id, $request, 'invoice');
+        ActivityLog::record('updated', 'invoice', $invoice->id, $invoice->invoice_no, 'Updated invoice', $before, $invoice->fresh()->load('items')->toArray());
 
         return redirect()->route('invoices.index')->with('success', 'Invoice updated successfully!');
     }
 
     public function destroy($id)
     {
-        Invoice::findOrFail($id)->delete();
+        $invoice = Invoice::with(['items','client'])->findOrFail($id);
+        $snap    = $invoice->toArray();
+        $ref     = $invoice->invoice_no;
+        $client  = $invoice->client->name ?? '';
+        $invoice->delete();
+        ActivityLog::record('deleted', 'invoice', $id, $ref, 'Deleted invoice '.$ref.' ('.$client.')', $snap, null);
         return redirect()->route('invoices.index')->with('success', 'Invoice deleted.');
     }
 

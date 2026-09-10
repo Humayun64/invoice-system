@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Client;
+use App\Models\ActivityLog;
 
 class ClientController extends Controller
 {
@@ -16,7 +17,8 @@ class ClientController extends Controller
     public function store(Request $request)
     {
         $request->validate(['name' => 'required|string|max:200']);
-        Client::create($request->only(['name','designation','company','address','postal_code','phone','email']));
+        $cl = Client::create($request->only(['name','designation','company','address','postal_code','phone','email']));
+        ActivityLog::record('created', 'client', $cl->id, $cl->name, 'Added client '.$cl->name, null, $cl->toArray());
         return redirect()->route('clients.index')->with('success', 'Client added.');
     }
 
@@ -30,7 +32,9 @@ class ClientController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate(['name' => 'required|string|max:200']);
-        Client::findOrFail($id)->update($request->only(['name','designation','company','address','postal_code','phone','email']));
+        $cl = Client::findOrFail($id); $before = $cl->toArray();
+        $cl->update($request->only(['name','designation','company','address','postal_code','phone','email']));
+        ActivityLog::record('updated', 'client', $cl->id, $cl->name, 'Updated client '.$cl->name, $before, $cl->fresh()->toArray());
         return redirect()->route('clients.index')->with('success', 'Client updated.');
     }
 
@@ -40,7 +44,9 @@ class ClientController extends Controller
         if ($client->invoices_count > 0 || $client->quotations_count > 0) {
             return redirect()->route('clients.index')->with('error', 'Cannot delete client with invoices or quotations.');
         }
+        $snap = $client->toArray(); $name = $client->name;
         $client->delete();
+        ActivityLog::record('deleted', 'client', $id, $name, 'Deleted client '.$name, $snap, null);
         return redirect()->route('clients.index')->with('success', 'Client deleted.');
     }
 }

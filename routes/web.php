@@ -7,6 +7,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\QuotationController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\ActivityLogController;
 
 // Redirect root to login or dashboard
 Route::get('/', function () {
@@ -59,4 +60,8 @@ Route::middleware('auth.check')->group(function () {
     Route::delete('/settings/badge/{id}',[SettingsController::class, 'removeBadge'])->name('settings.badge.remove');
     Route::post('/settings/sign',        [SettingsController::class, 'uploadSign'])->name('settings.sign.upload');
     Route::post('/settings/sign/remove', [SettingsController::class, 'removeSign'])->name('settings.sign.remove');
+
+    // Activity Log
+    Route::get('/activity',      [ActivityLogController::class, 'index'])->name('activity.index');
+    Route::get('/activity/{id}', [ActivityLogController::class, 'show'])->name('activity.show');
 });
