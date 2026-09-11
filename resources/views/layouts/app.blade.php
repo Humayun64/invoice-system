@@ -148,13 +148,58 @@ input:checked + .slider:before { transform:translateX(20px); }
 .pagination { display:flex; gap:5px; justify-content:center; padding:16px; }
 .pagination a,.pagination span { padding:6px 12px; border-radius:6px; font-size:0.85rem; text-decoration:none; border:1px solid #e2e8f0; color:#1e293b; }
 .pagination .active span { background:#7b1313; color:#fff; border-color:#7b1313; }
+
+/* ===== Mobile / Tablet ===== */
+.menu-btn { display:none; background:none; border:none; font-size:1.5rem; cursor:pointer; color:#1e293b; padding:4px 8px; margin-right:8px; line-height:1; }
+.sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:99; }
+.sidebar-overlay.show { display:block; }
+.topbar-left { display:flex; align-items:center; gap:4px; min-width:0; }
+.topbar-title { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.table-wrap table { min-width:720px; }
+
+@media (max-width: 1024px) {
+  .stat-cards { grid-template-columns:repeat(2,1fr); }
+}
+
+@media (max-width: 860px) {
+  .sidebar { transform:translateX(-100%); transition:transform 0.25s ease; box-shadow:4px 0 20px rgba(0,0,0,0.3); }
+  .sidebar.open { transform:translateX(0); }
+  .main { margin-left:0; }
+  .menu-btn { display:inline-block; }
+  .topbar { padding:0 14px; }
+  .topbar-user span.uname { display:none; }
+  .content { padding:14px; }
+  .page-header { flex-direction:column; align-items:flex-start; gap:10px; }
+  .page-header h1 { font-size:1.15rem; }
+  .form-row, .form-row.three { grid-template-columns:1fr; }
+  .form-card { padding:16px; }
+  .search-bar { flex-wrap:wrap; }
+  .search-bar input, .search-bar select { max-width:100%; flex:1 1 45%; }
+  .quick-actions { grid-template-columns:1fr !important; }
+  .two-col { grid-template-columns:1fr !important; }
+  .actions { gap:4px; }
+  .btn-sm { padding:5px 9px; font-size:0.74rem; }
+  .items-table { min-width:640px; }
+  .rte-editor { min-height:60px; }
+  .card-header { padding:12px 14px; }
+  table.data-table thead th, table.data-table tbody td { padding:9px 10px; font-size:0.82rem; }
+}
+
+@media (max-width: 480px) {
+  .stat-cards { grid-template-columns:1fr; }
+  .stat-card .stat-val { font-size:1.4rem; }
+  .content { padding:10px; }
+}
 </style>
 @stack('styles')
 </head>
 <body>
 
+<div class="sidebar-overlay" id="sbOverlay" onclick="toggleSB(false)"></div>
+
 <!-- Sidebar -->
-<div class="sidebar">
+<div class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <div class="sidebar-logo">
       <img src="{{ asset('assets/logo.png') }}" alt="SKM" onerror="this.style.display='none'">
@@ -195,10 +240,13 @@ input:checked + .slider:before { transform:translateX(20px); }
 <!-- Main -->
 <div class="main">
   <div class="topbar">
-    <div class="topbar-title">@yield('page_title', 'Dashboard')</div>
+    <div class="topbar-left">
+      <button class="menu-btn" onclick="toggleSB()" aria-label="Menu">☰</button>
+      <div class="topbar-title">@yield('page_title', 'Dashboard')</div>
+    </div>
     <div class="topbar-user">
       <div class="user-avatar">{{ strtoupper(substr(session('user_name','A'),0,1)) }}</div>
-      {{ session('user_name') }}
+      <span class="uname">{{ session('user_name') }}</span>
     </div>
   </div>
 
@@ -220,6 +268,14 @@ input:checked + .slider:before { transform:translateX(20px); }
 </div>
 
 @stack('scripts')
+<script>
+function toggleSB(force) {
+  const sb = document.getElementById('sidebar'), ov = document.getElementById('sbOverlay');
+  const open = force === undefined ? !sb.classList.contains('open') : force;
+  sb.classList.toggle('open', open); ov.classList.toggle('show', open);
+}
+document.querySelectorAll('.sidebar .nav-link').forEach(a => a.addEventListener('click', () => toggleSB(false)));
+</script>
 <script>
 function fmt(cmd, btn) {
   const ed = btn.closest('.rte-wrap').querySelector('.rte-editor');

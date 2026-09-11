@@ -106,7 +106,7 @@
   <!-- Line Items -->
   <div class="form-card">
     <h3>Scope of Works</h3>
-    <div id="tableWrap" class="{{ ($isEdit && $quotation->show_qty) ? 'show-qty' : '' }}">
+    <div id="tableWrap" class="table-wrap {{ ($isEdit && $quotation->show_qty) ? 'show-qty' : '' }}">
       <table class="items-table">
         <thead>
           <tr>

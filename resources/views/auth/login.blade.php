@@ -20,6 +20,7 @@ input:focus { outline:none; border-color:#7b1313; box-shadow:0 0 0 3px rgba(123,
 .btn-login { width:100%; padding:12px; background:#7b1313; color:#fff; border:none; border-radius:8px; font-size:1rem; font-weight:700; cursor:pointer; margin-top:8px; }
 .btn-login:hover { background:#9b1a1a; }
 .error-box { background:#fef2f2; border:1px solid #fca5a5; color:#b91c1c; padding:10px 14px; border-radius:8px; font-size:0.88rem; margin-bottom:16px; }
+@media (max-width:480px){ .login-card{padding:28px 22px;} }
 </style>
 </head>
 <body>

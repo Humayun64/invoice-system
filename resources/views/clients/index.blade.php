@@ -3,7 +3,7 @@
 @section('page_title','👥 Clients')
 
 @section('content')
-<div style="display:grid;grid-template-columns:320px 1fr;gap:24px;align-items:start;">
+<div class="two-col" style="display:grid;grid-template-columns:320px 1fr;gap:24px;align-items:start;">
 
   <!-- Form -->
   <div class="form-card">
@@ -28,7 +28,7 @@
   <!-- List -->
   <div class="card">
     <div class="card-header"><h2>All Clients ({{ $clients->count() }})</h2></div>
-    <table class="data-table">
+    <div class="table-wrap"><table class="data-table">
       <thead><tr><th>Name</th><th>Company</th><th>Phone</th><th>Invoices</th><th>Quotations</th><th>Actions</th></tr></thead>
       <tbody>
         @forelse($clients as $c)
@@ -54,7 +54,7 @@
           <tr><td colspan="6" style="text-align:center;padding:32px;color:#94a3b8;">No clients yet.</td></tr>
         @endforelse
       </tbody>
-    </table>
+    </table></div>
   </div>
 </div>
 @endsection

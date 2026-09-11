@@ -3,7 +3,7 @@
 @section('page_title','⚙️ Settings')
 
 @section('content')
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
+<div class="two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
 
   <!-- LEFT COLUMN -->
   <div>

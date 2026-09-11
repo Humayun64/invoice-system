@@ -68,6 +68,11 @@ body{font-family:Arial,sans-serif;background:#f0f0f0;color:#1a1a1a;font-size:13p
 #overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:9999;justify-content:center;align-items:center;flex-direction:column;gap:12px;}
 #overlay.show{display:flex;} #overlay p{color:#fff;} .spinner{width:44px;height:44px;border:4px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
+@media (max-width:860px){
+  .toolbar{flex-wrap:wrap;gap:8px;padding:10px 12px;}
+  .toolbar>div{flex-wrap:wrap;}
+  .page-wrap{padding:10px;overflow-x:auto;justify-content:flex-start;}
+}
 @media print{.toolbar{display:none!important;}.page-wrap{padding:0;}body{background:#fff;}.invoice{box-shadow:none;width:100%;padding:20px 28px;}}
 </style>
 </head>

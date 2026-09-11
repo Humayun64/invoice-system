@@ -23,7 +23,7 @@
 </form>
 
 <div class="card">
-  <table class="data-table">
+  <div class="table-wrap"><table class="data-table">
     <thead>
       <tr><th>#</th><th>Quotation No.</th><th>Client</th><th>Project</th><th>Date</th><th>Total (SGD)</th><th>Status</th><th>Actions</th></tr>
     </thead>
@@ -58,7 +58,7 @@
         <tr><td colspan="8" style="text-align:center;padding:40px;color:#94a3b8;">No quotations yet. <a href="{{ route('quotations.create') }}" style="color:#7b1313;">Create first quotation →</a></td></tr>
       @endforelse
     </tbody>
-  </table>
+  </table></div>
   <div class="pagination">{{ $quotations->links() }}</div>
 </div>
 @endsection

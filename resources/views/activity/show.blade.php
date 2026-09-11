@@ -83,7 +83,7 @@
 
 <div class="form-card">
   <h3>Raw data</h3>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+  <div class="two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
     <div><div style="font-size:0.8rem;font-weight:600;margin-bottom:6px;color:#b91c1c;">Before</div><div class="json-box">{{ $old ? json_encode($old, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES) : '—' }}</div></div>
     <div><div style="font-size:0.8rem;font-weight:600;margin-bottom:6px;color:#15803d;">After</div><div class="json-box">{{ $new ? json_encode($new, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES) : '—' }}</div></div>
   </div>

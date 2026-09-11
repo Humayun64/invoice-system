@@ -5,7 +5,7 @@
 @section('content')
 
 <!-- Quick Actions -->
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;">
+<div class="quick-actions" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;">
   <a href="{{ route('invoices.create') }}" style="background:linear-gradient(135deg,#7b1313,#9b1a1a);color:#fff;border-radius:12px;padding:28px;text-decoration:none;display:flex;align-items:center;gap:16px;box-shadow:0 4px 14px rgba(123,19,19,0.3);">
     <div style="font-size:2.5rem;">📄</div>
     <div>
@@ -48,7 +48,7 @@
     <h2>📄 Recent Invoices</h2>
     <a href="{{ route('invoices.index') }}" class="btn btn-secondary btn-sm">View All</a>
   </div>
-  <table class="data-table">
+  <div class="table-wrap"><table class="data-table">
     <thead><tr><th>Invoice No.</th><th>Client</th><th>Date</th><th>Total (SGD)</th><th>Status</th><th>Actions</th></tr></thead>
     <tbody>
       @forelse($recentInvoices as $inv)
@@ -68,7 +68,7 @@
         <tr><td colspan="6" style="text-align:center;padding:32px;color:#94a3b8;">No invoices yet.</td></tr>
       @endforelse
     </tbody>
-  </table>
+  </table></div>
 </div>
 
 <!-- Recent Quotations -->
@@ -77,7 +77,7 @@
     <h2>📋 Recent Quotations</h2>
     <a href="{{ route('quotations.index') }}" class="btn btn-secondary btn-sm">View All</a>
   </div>
-  <table class="data-table">
+  <div class="table-wrap"><table class="data-table">
     <thead><tr><th>Quotation No.</th><th>Client</th><th>Date</th><th>Total (SGD)</th><th>Status</th><th>Actions</th></tr></thead>
     <tbody>
       @forelse($recentQuotations as $qt)
@@ -97,6 +97,6 @@
         <tr><td colspan="6" style="text-align:center;padding:32px;color:#94a3b8;">No quotations yet.</td></tr>
       @endforelse
     </tbody>
-  </table>
+  </table></div>
 </div>
 @endsection

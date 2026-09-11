@@ -24,7 +24,7 @@
 </form>
 
 <div class="card">
-  <table class="data-table">
+  <div class="table-wrap"><table class="data-table">
     <thead>
       <tr><th>#</th><th>Invoice No.</th><th>Client</th><th>Project</th><th>Date</th><th>Total (SGD)</th><th>Status</th><th>Actions</th></tr>
     </thead>
@@ -55,7 +55,7 @@
         <tr><td colspan="8" style="text-align:center;padding:40px;color:#94a3b8;">No invoices yet. <a href="{{ route('invoices.create') }}" style="color:#7b1313;">Create first invoice →</a></td></tr>
       @endforelse
     </tbody>
-  </table>
+  </table></div>
   <div class="pagination">{{ $invoices->links() }}</div>
 </div>
 @endsection

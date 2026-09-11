@@ -40,7 +40,7 @@
 </form>
 
 <div class="card">
-  <table class="data-table">
+  <div class="table-wrap"><table class="data-table">
     <thead><tr><th>Date / Time</th><th>User</th><th>Action</th><th>Module</th><th>Reference</th><th>Description</th><th>IP</th><th></th></tr></thead>
     <tbody>
       @forelse($logs as $log)
@@ -63,7 +63,7 @@
         <tr><td colspan="8" style="text-align:center;padding:40px;color:#94a3b8;">No activity yet.</td></tr>
       @endforelse
     </tbody>
-  </table>
+  </table></div>
   <div class="pagination">{{ $logs->links() }}</div>
 </div>
 @endsection

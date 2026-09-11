@@ -115,7 +115,7 @@
   <!-- Line Items -->
   <div class="form-card">
     <h3>Scope of Work & Line Items</h3>
-    <div id="tableWrap" class="{{ $curShowQty ? 'show-qty' : '' }}">
+    <div id="tableWrap" class="table-wrap {{ $curShowQty ? 'show-qty' : '' }}">
       <table class="items-table">
         <thead>
           <tr>
