@@ -51,7 +51,7 @@ body{font-family:Arial,sans-serif;background:#f0f0f0;color:#1a1a1a;font-size:13p
   .toolbar>div{flex-wrap:wrap;}
   .page-wrap{padding:10px;overflow-x:auto;justify-content:flex-start;}
 }
-@media print{.toolbar{display:none!important;}.page-wrap{padding:0;}body{background:#fff;}.invoice{box-shadow:none;width:100%;padding:20px 28px;}}
+@media print{ tr,.tc-row,.clauses p,.item-row{page-break-inside:avoid;} .scope-table{page-break-inside:auto;} thead{display:table-header-group;}.toolbar{display:none!important;}.page-wrap{padding:0;}body{background:#fff;}.invoice{box-shadow:none;width:100%;padding:20px 28px;}}
 </style>
 </head>
 <body>
@@ -171,19 +171,43 @@ function dlPDF(){
   const ov=document.getElementById('overlay'); ov.classList.add('show');
   const el=document.getElementById('inv');
   html2canvas(el,{scale:2,useCORS:true,backgroundColor:'#ffffff',width:el.offsetWidth,height:el.offsetHeight,scrollX:0,scrollY:0}).then(canvas=>{
-    const {jsPDF}=window.jspdf; const a4W=210,a4H=297;
-    const cH=(canvas.height*a4W)/canvas.width;
-    const pdf=new jsPDF('p','mm','a4');
-    if(cH<=a4H){pdf.addImage(canvas.toDataURL('image/png'),'PNG',0,0,a4W,cH);}
-    else{
-      const ph=Math.floor((a4H/cH)*canvas.height);let rem=canvas.height,oy=0,pg=0;
-      while(rem>0){const sh=Math.min(ph,rem);const pc=document.createElement('canvas');pc.width=canvas.width;pc.height=sh;
-        pc.getContext('2d').drawImage(canvas,0,oy,canvas.width,sh,0,0,canvas.width,sh);
-        if(pg>0)pdf.addPage();pdf.addImage(pc.toDataURL('image/png'),'PNG',0,0,a4W,(sh*a4W)/canvas.width);
-        oy+=sh;rem-=sh;pg++;}
+    const {jsPDF}=window.jspdf;
+    const a4W=210, a4H=297, marginTop=8, marginBot=10;          // mm
+    const usableH = a4H - marginTop - marginBot;
+    const pxPerMm = canvas.width / a4W;
+    const pageCanvasH = Math.floor(usableH * pxPerMm);           // px per page
+    const ctx = canvas.getContext('2d');
+    const pdf = new jsPDF('p','mm','a4');
+
+    // Find nearest mostly-white row above y (to avoid cutting text)
+    function findBreak(y){
+      const minY = y - Math.floor(pageCanvasH*0.25);           // search up to 25% back
+      for(let row=y; row>minY; row--){
+        const d = ctx.getImageData(0,row,canvas.width,1).data;
+        let dark=0;
+        for(let i=0;i<d.length;i+=4){ if(d[i]<200||d[i+1]<200||d[i+2]<200) dark++; }
+        if(dark < canvas.width*0.005) return row;                // < 0.5% dark pixels = blank line
+      }
+      return y;                                                  // fallback: hard cut
     }
+
+    let y=0, page=0;
+    while(y < canvas.height){
+      let end = Math.min(y + pageCanvasH, canvas.height);
+      if(end < canvas.height) end = findBreak(end);
+      const sliceH = end - y;
+      const pc=document.createElement('canvas'); pc.width=canvas.width; pc.height=sliceH;
+      pc.getContext('2d').drawImage(canvas,0,y,canvas.width,sliceH,0,0,canvas.width,sliceH);
+      if(page>0) pdf.addPage();
+      pdf.addImage(pc.toDataURL('image/png'),'PNG',0,marginTop,a4W,sliceH/pxPerMm);
+      // page number
+      pdf.setFontSize(8); pdf.setTextColor(140);
+      y = end; page++;
+    }
+    const total = pdf.getNumberOfPages();
+    for(let i=1;i<=total;i++){ pdf.setPage(i); pdf.text('Page '+i+' of '+total, a4W-14, a4H-5, {align:'right'}); }
     pdf.save('Invoice-{{ $invoice->invoice_no }}.pdf'); ov.classList.remove('show');
-  }).catch(()=>{ov.classList.remove('show');alert('Failed. Use Print instead.');});
+  }).catch(e=>{console.error(e);ov.classList.remove('show');alert('Failed. Use Print instead.');});
 }
 </script>
 </body></html>
