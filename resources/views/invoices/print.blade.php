@@ -177,7 +177,7 @@ function dlPDF(){
   const el=document.getElementById('inv');
   html2canvas(el,{scale:3,useCORS:true,backgroundColor:'#ffffff',width:el.offsetWidth,height:el.offsetHeight,scrollX:0,scrollY:0}).then(canvas=>{
     const {jsPDF}=window.jspdf;
-    const a4W=210, a4H=297, marginTop=16, marginBot=14;          // mm
+    const a4W=210, a4H=297, marginTopFirst=4, marginTop=16, marginBot=14;   // mm
     const usableH = a4H - marginTop - marginBot;
     const pxPerMm = canvas.width / a4W;
     const pageCanvasH = Math.floor(usableH * pxPerMm);           // px per page
@@ -198,13 +198,15 @@ function dlPDF(){
 
     let y=0, page=0;
     while(y < canvas.height){
-      let end = Math.min(y + pageCanvasH, canvas.height);
+      const mt = page===0 ? marginTopFirst : marginTop;
+      const thisPageH = Math.floor((a4H - mt - marginBot) * pxPerMm);
+      let end = Math.min(y + thisPageH, canvas.height);
       if(end < canvas.height) end = findBreak(end);
       const sliceH = end - y;
       const pc=document.createElement('canvas'); pc.width=canvas.width; pc.height=sliceH;
       pc.getContext('2d').drawImage(canvas,0,y,canvas.width,sliceH,0,0,canvas.width,sliceH);
       if(page>0) pdf.addPage();
-      pdf.addImage(pc.toDataURL('image/png'),'PNG',0,marginTop,a4W,sliceH/pxPerMm);
+      pdf.addImage(pc.toDataURL('image/png'),'PNG',0,mt,a4W,sliceH/pxPerMm);
       // page number
       pdf.setFontSize(8); pdf.setTextColor(140);
       y = end; page++;
