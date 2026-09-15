@@ -184,16 +184,24 @@ function dlPDF(){
     const ctx = canvas.getContext('2d');
     const pdf = new jsPDF('p','mm','a4');
 
-    // Find nearest mostly-white row above y (to avoid cutting text)
-    function findBreak(y){
-      const minY = y - Math.floor(pageCanvasH*0.25);           // search up to 25% back
-      for(let row=y; row>minY; row--){
-        const d = ctx.getImageData(0,row,canvas.width,1).data;
-        let dark=0;
-        for(let i=0;i<d.length;i+=4){ if(d[i]<200||d[i+1]<200||d[i+2]<200) dark++; }
-        if(dark < canvas.width*0.005) return row;                // < 0.5% dark pixels = blank line
+    // A row is "blank" if it has no dark RUN wider than a table border (~6px at scale 3).
+    // Vertical table borders are thin, so they are ignored; text glyphs are wider.
+    function rowIsBlank(row){
+      const d = ctx.getImageData(0,row,canvas.width,1).data;
+      let run=0;
+      for(let i=0;i<d.length;i+=4){
+        const dark = d[i]<180 || d[i+1]<180 || d[i+2]<180;
+        if(dark){ run++; if(run>8) return false; } else run=0;
       }
-      return y;                                                  // fallback: hard cut
+      return true;
+    }
+    // Find a blank row at/above y, then require 3 consecutive blank rows (a real gap, not border)
+    function findBreak(y){
+      const minY = y - Math.floor(pageCanvasH*0.30);
+      for(let row=y; row>minY; row--){
+        if(rowIsBlank(row) && rowIsBlank(row-1) && rowIsBlank(row-2)) return row-1;
+      }
+      return y;
     }
 
     let y=0, page=0;
