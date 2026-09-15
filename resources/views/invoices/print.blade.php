@@ -55,8 +55,9 @@ body{font-family:Arial,sans-serif;background:#f0f0f0;color:#000;font-size:13px;}
 .mobile-hint{display:none;}
 
 /* ===== PRINT / PDF ===== */
-@page { size: A4; margin: 14mm 12mm 16mm 12mm; }
+@page { size: A4; margin: 12mm 12mm 14mm 12mm; }
 @media print {
+  * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; color-adjust:exact !important; }
   html, body { background:#fff !important; }
   .toolbar, .mobile-hint, .pdf-hint, #overlay { display:none !important; }
   .page-wrap { padding:0; display:block; }
@@ -79,7 +80,6 @@ body{font-family:Arial,sans-serif;background:#f0f0f0;color:#000;font-size:13px;}
 </style>
 </head>
 <body>
-<p>Generating PDF...</p></div>
 <div class="toolbar">
   <div style="display:flex;gap:8px;">
     <a href="{{ route('invoices.index') }}" class="btn btn-outline">← Back</a>
@@ -90,7 +90,7 @@ body{font-family:Arial,sans-serif;background:#f0f0f0;color:#000;font-size:13px;}
     <button onclick="window.print()" class="btn btn-white">🖨️ Print</button>
   </div>
 </div>
-<div class="pdf-hint" style="background:#eef6ff;color:#1e40af;font-size:0.8rem;padding:6px 12px;text-align:center;border-bottom:1px solid #bfdbfe;">Click <b>Download PDF</b> → in the print dialog choose <b>Save as PDF</b> as the destination.</div>
+<div class="pdf-hint" style="background:#eef6ff;color:#1e40af;font-size:0.8rem;padding:6px 12px;text-align:center;border-bottom:1px solid #bfdbfe;">Click <b>Download PDF</b> → choose <b>Save as PDF</b>. Under <b>More settings</b> turn <b>OFF</b> “Headers and footers” and turn <b>ON</b> “Background graphics” (only needed once — the browser remembers).</div>
 <div class="mobile-hint">↔ Swipe sideways to view the full A4 page. PDF download is unaffected.</div>
 <div class="page-wrap"><div class="invoice" id="inv">
 
