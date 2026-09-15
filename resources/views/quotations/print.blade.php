@@ -7,7 +7,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:Arial,sans-serif;background:#f0f0f0;color:#1a1a1a;font-size:13px;}
+body{font-family:Arial,sans-serif;background:#f0f0f0;color:#000;font-size:13px;}
+.invoice{color:#000;}
 .toolbar{background:#1d4ed8;color:#fff;padding:12px 28px;display:flex;gap:10px;align-items:center;justify-content:space-between;}
 .btn{padding:7px 16px;border-radius:6px;font-size:0.82rem;font-weight:600;cursor:pointer;border:none;text-decoration:none;display:inline-flex;align-items:center;gap:5px;}
 .btn-white{background:#fff;color:#1d4ed8;} .btn-green{background:#059669;color:#fff;} .btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.4);color:#fff;}
@@ -19,20 +20,20 @@ body{font-family:Arial,sans-serif;background:#f0f0f0;color:#1a1a1a;font-size:13p
 .logo-main{width:100px;height:auto;max-height:80px;object-fit:contain;flex-shrink:0;}
 .co-block{flex:1;text-align:center;}
 .co-name{font-family:'Times New Roman',serif;font-size:1.75rem;font-weight:900;letter-spacing:0.5px;line-height:1.1;}
-.co-info{font-size:0.82rem;color:#333;margin-top:6px;line-height:1.7;}
-.co-info .blue{color:#1a73e8;}
+.co-info{font-size:0.82rem;color:#000;margin-top:6px;line-height:1.7;}
+.co-info .blue{color:#1a73e8 !important;}
 .hdr-badges{display:flex;justify-content:space-between;align-items:flex-end;margin-top:4px;min-height:52px;}
 .badge-group{display:flex;gap:10px;align-items:flex-end;}
 .badge-img{height:50px;width:auto;max-width:140px;object-fit:contain;}
-.qt-banner{background:#7b1313;color:#fff;text-align:center;font-size:1.45rem;font-weight:600;letter-spacing:8px;padding:8px 0;margin:6px 0 18px;}
+.qt-banner{background:#7b1313;color:#fff !important;text-align:center;font-size:1.45rem;font-weight:600;letter-spacing:8px;padding:8px 0;margin:6px 0 18px;}
 
 .inv-meta{display:flex;justify-content:space-between;margin-bottom:14px;}
 .client-block{font-size:0.87rem;line-height:1.75;}
-.client-block .lbl{font-size:0.77rem;color:#777;} .client-block .cname{font-weight:700;font-size:0.97rem;}
+.client-block .lbl{font-size:0.77rem;color:#444;} .client-block .cname{font-weight:700;font-size:0.97rem;}
 .meta-right{text-align:right;font-size:0.87rem;line-height:1.9;}
-.meta-right .ml{color:#777;font-size:0.77rem;} .meta-right .mv{font-weight:700;}
+.meta-right .ml{color:#444;font-size:0.77rem;} .meta-right .mv{font-weight:700;}
 .proj-row{display:flex;align-items:baseline;gap:10px;border-bottom:2px solid #1a1a1a;padding-bottom:5px;margin-bottom:14px;font-size:0.87rem;}
-.proj-row .pl{color:#555;} .proj-row .pt{font-weight:700;}
+.proj-row .pl{color:#333;} .proj-row .pt{font-weight:700;}
 .dear-section{margin-bottom:18px;font-size:0.88rem;line-height:1.7;}
 .dear-section .dear-name{font-weight:700;}
 
@@ -47,7 +48,7 @@ body{font-family:Arial,sans-serif;background:#f0f0f0;color:#1a1a1a;font-size:13p
 .scope-table .col-amt{text-align:right;width:115px;white-space:nowrap;}
 .scope-table td ul{padding-left:16px;margin:2px 0;list-style:disc;} .scope-table td ol{padding-left:16px;margin:2px 0;list-style:decimal;} .scope-table td li{margin:1px 0;}
 .tr-sub td{text-align:right;font-weight:700;padding:8px 10px;}
-.tr-disc td{text-align:right;font-weight:600;padding:8px 10px;color:#b91c1c;}
+.tr-disc td{text-align:right;font-weight:600;padding:8px 10px;color:#b91c1c !important;}
 .tr-total td{text-align:right;font-weight:900;font-size:1rem;padding:8px 10px;}
 
 .clauses{margin-bottom:18px;font-size:0.84rem;line-height:1.65;}
@@ -64,15 +65,18 @@ body{font-family:Arial,sans-serif;background:#f0f0f0;color:#1a1a1a;font-size:13p
 .sig-section{display:flex;justify-content:space-between;align-items:flex-start;margin-top:10px;}
 .sig-left,.sig-right{font-size:0.86rem;} .sig-right{text-align:right;}
 .sig-line{border-top:1px solid #1a1a1a;width:220px;margin:32px 0 6px;}
-.sig-name{font-weight:700;font-size:0.92rem;margin-top:26px;} .sig-role{color:#555;}
+.sig-name{font-weight:700;font-size:0.92rem;margin-top:26px;} .sig-role{color:#333;}
 #overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:9999;justify-content:center;align-items:center;flex-direction:column;gap:12px;}
 #overlay.show{display:flex;} #overlay p{color:#fff;} .spinner{width:44px;height:44px;border:4px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 @media (max-width:860px){
-  .toolbar{flex-wrap:wrap;gap:8px;padding:10px 12px;}
+  .toolbar{flex-wrap:wrap;gap:8px;padding:10px 12px;position:sticky;top:0;z-index:10;}
   .toolbar>div{flex-wrap:wrap;}
-  .page-wrap{padding:10px;overflow-x:auto;justify-content:flex-start;}
+  .page-wrap{padding:10px;overflow-x:auto;justify-content:flex-start;display:block;}
+  .invoice{min-width:794px;width:794px;flex-shrink:0;}
+  .mobile-hint{display:block;background:#fff8e1;color:#7a5a00;font-size:0.78rem;padding:6px 12px;text-align:center;border-bottom:1px solid #f0d78c;}
 }
+.mobile-hint{display:none;}
 @media print{ tr,.tc-row,.clauses p,.item-row{page-break-inside:avoid;} .scope-table{page-break-inside:auto;} thead{display:table-header-group;}.toolbar{display:none!important;}.page-wrap{padding:0;}body{background:#fff;}.invoice{box-shadow:none;width:100%;padding:20px 28px;}}
 </style>
 </head>
@@ -88,6 +92,7 @@ body{font-family:Arial,sans-serif;background:#f0f0f0;color:#1a1a1a;font-size:13p
     <button onclick="window.print()" class="btn btn-white">🖨️ Print</button>
   </div>
 </div>
+<div class="mobile-hint">↔ Swipe sideways to view the full A4 page. PDF download is unaffected.</div>
 <div class="page-wrap"><div class="invoice" id="inv">
 
   <!-- Header -->
@@ -255,9 +260,9 @@ body{font-family:Arial,sans-serif;background:#f0f0f0;color:#1a1a1a;font-size:13p
 function dlPDF(){
   const ov=document.getElementById('overlay'); ov.classList.add('show');
   const el=document.getElementById('inv');
-  html2canvas(el,{scale:2,useCORS:true,backgroundColor:'#ffffff',width:el.offsetWidth,height:el.offsetHeight,scrollX:0,scrollY:0}).then(canvas=>{
+  html2canvas(el,{scale:3,useCORS:true,backgroundColor:'#ffffff',width:el.offsetWidth,height:el.offsetHeight,scrollX:0,scrollY:0}).then(canvas=>{
     const {jsPDF}=window.jspdf;
-    const a4W=210, a4H=297, marginTop=8, marginBot=10;          // mm
+    const a4W=210, a4H=297, marginTop=16, marginBot=14;          // mm
     const usableH = a4H - marginTop - marginBot;
     const pxPerMm = canvas.width / a4W;
     const pageCanvasH = Math.floor(usableH * pxPerMm);           // px per page
