@@ -3,8 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Quotation {{ $quotation->quotation_no }}</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:Arial,sans-serif;background:#f0f0f0;color:#000;font-size:13px;}
@@ -39,7 +37,7 @@ body{font-family:Arial,sans-serif;background:#f0f0f0;color:#000;font-size:13px;}
 
 .scope-title{text-align:center;font-weight:700;font-size:1rem;margin-bottom:8px;}
 .scope-table{width:100%;border-collapse:collapse;margin-bottom:18px;}
-.scope-table th{border:1px solid #bbb;padding:8px 10px;text-align:center;font-weight:700;font-size:0.82rem;}
+.scope-table th{border:1px solid #bbb;background:#f5f5f5;padding:8px 10px;text-align:center;font-weight:700;font-size:0.82rem;}
 .scope-table td{border:1px solid #bbb;padding:8px 10px;font-size:0.86rem;vertical-align:top;}
 .scope-table td:first-child{text-align:center;width:44px;}
 .scope-table .col-desc{text-align:left;}
@@ -77,21 +75,44 @@ body{font-family:Arial,sans-serif;background:#f0f0f0;color:#000;font-size:13px;}
   .mobile-hint{display:block;background:#fff8e1;color:#7a5a00;font-size:0.78rem;padding:6px 12px;text-align:center;border-bottom:1px solid #f0d78c;}
 }
 .mobile-hint{display:none;}
-@media print{ tr,.tc-row,.clauses p,.item-row{page-break-inside:avoid;} .scope-table{page-break-inside:auto;} thead{display:table-header-group;}.toolbar{display:none!important;}.page-wrap{padding:0;}body{background:#fff;}.invoice{box-shadow:none;width:100%;padding:20px 28px;}}
+
+/* ===== PRINT / PDF ===== */
+@page { size: A4; margin: 14mm 12mm 16mm 12mm; }
+@media print {
+  html, body { background:#fff !important; }
+  .toolbar, .mobile-hint, .pdf-hint, #overlay { display:none !important; }
+  .page-wrap { padding:0; display:block; }
+  .invoice { box-shadow:none; width:100%; min-width:0; padding:0; margin:0; }
+  /* tables: repeat header on every page, never split a row */
+  table { page-break-inside:auto; border-collapse:collapse; }
+  thead { display:table-header-group; }
+  tfoot { display:table-footer-group; }
+  tr { page-break-inside:avoid; break-inside:avoid; }
+  td, th { page-break-inside:avoid; }
+  /* keep blocks together */
+  .tc-row, .clauses p, .pay-section, .sig-section, .conclusion-section, .dear-section { page-break-inside:avoid; break-inside:avoid; }
+  .clauses .ch, .tc-title, .scope-title, .pay-title { page-break-after:avoid; break-after:avoid; }
+  .sig-section { page-break-before:auto; }
+  a { text-decoration:none; color:inherit; }
+  /* footer page numbers via counter */
+  .print-footer { display:block; position:fixed; bottom:0; left:0; right:0; text-align:right; font-size:8pt; color:#888; }
+}
+.print-footer { display:none; }
 </style>
 </head>
 <body>
-<div id="overlay"><div class="spinner"></div><p>Generating PDF...</p></div>
+<p>Generating PDF...</p></div>
 <div class="toolbar">
   <div style="display:flex;gap:8px;">
     <a href="{{ route('quotations.index') }}" class="btn btn-outline">← Back</a>
     <a href="{{ route('quotations.edit',$quotation->id) }}" class="btn btn-outline">✏️ Edit</a>
   </div>
   <div style="display:flex;gap:8px;">
-    <button onclick="dlPDF()" class="btn btn-green">⬇ Download PDF</button>
+    <button onclick="downloadPDF()" class="btn btn-green">⬇ Download PDF</button>
     <button onclick="window.print()" class="btn btn-white">🖨️ Print</button>
   </div>
 </div>
+<div class="pdf-hint" style="background:#eef6ff;color:#1e40af;font-size:0.8rem;padding:6px 12px;text-align:center;border-bottom:1px solid #bfdbfe;">Click <b>Download PDF</b> → in the print dialog choose <b>Save as PDF</b> as the destination.</div>
 <div class="mobile-hint">↔ Swipe sideways to view the full A4 page. PDF download is unaffected.</div>
 <div class="page-wrap"><div class="invoice" id="inv">
 
@@ -257,57 +278,11 @@ body{font-family:Arial,sans-serif;background:#f0f0f0;color:#000;font-size:13px;}
 
 </div></div>
 <script>
-function dlPDF(){
-  const ov=document.getElementById('overlay'); ov.classList.add('show');
-  const el=document.getElementById('inv');
-  html2canvas(el,{scale:3,useCORS:true,backgroundColor:'#ffffff',width:el.offsetWidth,height:el.offsetHeight,scrollX:0,scrollY:0}).then(canvas=>{
-    const {jsPDF}=window.jspdf;
-    const a4W=210, a4H=297, marginTopFirst=4, marginTop=16, marginBot=14;   // mm
-    const usableH = a4H - marginTop - marginBot;
-    const pxPerMm = canvas.width / a4W;
-    const pageCanvasH = Math.floor(usableH * pxPerMm);           // px per page
-    const ctx = canvas.getContext('2d');
-    const pdf = new jsPDF('p','mm','a4');
-
-    // A row is "blank" if it has no dark RUN wider than a table border (~6px at scale 3).
-    // Vertical table borders are thin, so they are ignored; text glyphs are wider.
-    function rowIsBlank(row){
-      const d = ctx.getImageData(0,row,canvas.width,1).data;
-      let run=0;
-      for(let i=0;i<d.length;i+=4){
-        const dark = d[i]<180 || d[i+1]<180 || d[i+2]<180;
-        if(dark){ run++; if(run>8) return false; } else run=0;
-      }
-      return true;
-    }
-    // Find a blank row at/above y, then require 3 consecutive blank rows (a real gap, not border)
-    function findBreak(y){
-      const minY = y - Math.floor(pageCanvasH*0.30);
-      for(let row=y; row>minY; row--){
-        if(rowIsBlank(row) && rowIsBlank(row-1) && rowIsBlank(row-2)) return row-1;
-      }
-      return y;
-    }
-
-    let y=0, page=0;
-    while(y < canvas.height){
-      const mt = page===0 ? marginTopFirst : marginTop;
-      const thisPageH = Math.floor((a4H - mt - marginBot) * pxPerMm);
-      let end = Math.min(y + thisPageH, canvas.height);
-      if(end < canvas.height) end = findBreak(end);
-      const sliceH = end - y;
-      const pc=document.createElement('canvas'); pc.width=canvas.width; pc.height=sliceH;
-      pc.getContext('2d').drawImage(canvas,0,y,canvas.width,sliceH,0,0,canvas.width,sliceH);
-      if(page>0) pdf.addPage();
-      pdf.addImage(pc.toDataURL('image/png'),'PNG',0,mt,a4W,sliceH/pxPerMm);
-      // page number
-      pdf.setFontSize(8); pdf.setTextColor(140);
-      y = end; page++;
-    }
-    const total = pdf.getNumberOfPages();
-    for(let i=1;i<=total;i++){ pdf.setPage(i); pdf.text('Page '+i+' of '+total, a4W-14, a4H-5, {align:'right'}); }
-    pdf.save('Quotation-{{ $quotation->quotation_no }}.pdf'); ov.classList.remove('show');
-  }).catch(e=>{console.error(e);ov.classList.remove('show');alert('Failed. Use Print instead.');});
+function downloadPDF(){
+  const t = document.title;
+  document.title = 'Quotation-{{ $quotation->quotation_no }}';
+  window.print();
+  setTimeout(()=>{ document.title = t; }, 1000);
 }
 </script>
 </body></html>
